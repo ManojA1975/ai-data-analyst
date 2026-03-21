@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import anthropic
+import google.generativeai as genai
 import json
 import io
 from datetime import datetime
@@ -105,8 +105,8 @@ if "file_name"    not in st.session_state: st.session_state.file_name    = ""
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
-    api_key = st.text_input("Anthropic API Key", type="password",
-                            help="Get your key at console.anthropic.com")
+    api_key = st.text_input("Google Gemini API Key", type="password",
+                            help="Get your free key at aistudio.google.com")
 
     st.markdown("---")
     st.markdown("### 📁 Upload Data")
@@ -151,47 +151,35 @@ def get_data_summary(df: pd.DataFrame) -> str:
 
 
 def ask_claude(prompt: str, df: pd.DataFrame, api_key: str) -> str:
-    client   = anthropic.Anthropic(api_key=api_key)
-    summary  = get_data_summary(df)
-    message  = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        system="""You are an expert data analyst and statistician.
+    genai.configure(api_key=api_key)
+    model   = genai.GenerativeModel("gemini-1.5-flash",
+                system_instruction="""You are an expert data analyst and statistician.
 You have access to a dataset and your job is to provide clear, actionable insights.
 Always structure your answers with:
 - Key findings (use bullet points)
 - Statistical observations
 - Business recommendations
 - Any anomalies or patterns worth noting
-Be concise but thorough. Use emojis to make responses engaging.""",
-        messages=[
-            {"role": "user",
-             "content": f"Dataset summary:\n{summary}\n\nQuestion / Task:\n{prompt}"}
-        ]
-    )
-    return message.content[0].text
+Be concise but thorough. Use emojis to make responses engaging.""")
+    summary = get_data_summary(df)
+    response = model.generate_content(f"Dataset summary:\n{summary}\n\nQuestion / Task:\n{prompt}")
+    return response.text
 
 
 def generate_auto_insights(df: pd.DataFrame, api_key: str) -> str:
-    client  = anthropic.Anthropic(api_key=api_key)
-    summary = get_data_summary(df)
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        system="""You are an expert data analyst. Analyze this dataset and produce a comprehensive report covering:
+    genai.configure(api_key=api_key)
+    model   = genai.GenerativeModel("gemini-1.5-flash",
+                system_instruction="""You are an expert data analyst. Analyze this dataset and produce a comprehensive report covering:
 1. 📊 Dataset Overview
 2. 🔍 Key Statistical Insights  
 3. 📈 Trends & Patterns
 4. ⚠️ Data Quality Issues
 5. 💡 Top 5 Business Recommendations
 6. 🎯 Next Steps for Analysis
-Use markdown formatting with clear sections and bullet points.""",
-        messages=[
-            {"role": "user",
-             "content": f"Please analyze this dataset and provide comprehensive insights:\n{summary}"}
-        ]
-    )
-    return message.content[0].text
+Use markdown formatting with clear sections and bullet points.""")
+    summary  = get_data_summary(df)
+    response = model.generate_content(f"Please analyze this dataset and provide comprehensive insights:\n{summary}")
+    return response.text
 
 
 # ─── Main Content (tabs) ──────────────────────────────────────────────────────

@@ -105,7 +105,7 @@ if "file_name"    not in st.session_state: st.session_state.file_name    = ""
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
-    api_key = st.text_input("Google Gemini API Key", type="password",
+    api_key = st.secrets.get("GOOGLE_API_KEY", "",
                             help="Get your free key at aistudio.google.com")
 
     st.markdown("---")

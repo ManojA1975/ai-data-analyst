@@ -105,9 +105,7 @@ if "file_name"    not in st.session_state: st.session_state.file_name    = ""
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
-    api_key = st.text_input("Google Gemini API Key", type="password",
-                            help="Get your free key at aistudio.google.com")
-
+    api_key = st.secrets.get("GOOGLE_API_KEY", "")
     st.markdown("---")
     st.markdown("### 📁 Upload Data")
     uploaded = st.file_uploader("CSV or Excel file", type=["csv", "xlsx", "xls"])

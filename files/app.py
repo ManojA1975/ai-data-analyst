@@ -151,33 +151,35 @@ def get_data_summary(df: pd.DataFrame) -> str:
 
 def ask_claude(prompt: str, df: pd.DataFrame, api_key: str) -> str:
     genai.configure(api_key=api_key)
-    model   = genai.GenerativeModel("gemini-1.5-flash-latest",
-                system_instruction="""You are an expert data analyst and statistician.
-You have access to a dataset and your job is to provide clear, actionable insights.
-Always structure your answers with:
-- Key findings (use bullet points)
-- Statistical observations
-- Business recommendations
-- Any anomalies or patterns worth noting
-Be concise but thorough. Use emojis to make responses engaging.""")
+    model   = genai.GenerativeModel("gemini-1.0-pro")
     summary = get_data_summary(df)
-    response = model.generate_content(f"Dataset summary:\n{summary}\n\nQuestion / Task:\n{prompt}")
+    full_prompt = f"""You are an expert data analyst. Answer clearly with bullet points and emojis.
+Give statistical observations and business recommendations.
+
+Dataset summary:
+{summary}
+
+Question: {prompt}"""
+    response = model.generate_content(full_prompt)
     return response.text
 
 
 def generate_auto_insights(df: pd.DataFrame, api_key: str) -> str:
     genai.configure(api_key=api_key)
-    model   = genai.GenerativeModel("gemini-1.5-flash-latest",
-                system_instruction="""You are an expert data analyst. Analyze this dataset and produce a comprehensive report covering:
+    model   = genai.GenerativeModel("gemini-1.0-pro")
+    summary = get_data_summary(df)
+    full_prompt = f"""You are an expert data analyst. Analyze this dataset and produce a report with:
 1. 📊 Dataset Overview
-2. 🔍 Key Statistical Insights  
+2. 🔍 Key Statistical Insights
 3. 📈 Trends & Patterns
 4. ⚠️ Data Quality Issues
 5. 💡 Top 5 Business Recommendations
-6. 🎯 Next Steps for Analysis
-Use markdown formatting with clear sections and bullet points.""")
-    summary  = get_data_summary(df)
-    response = model.generate_content(f"Please analyze this dataset and provide comprehensive insights:\n{summary}")
+6. 🎯 Next Steps
+Use markdown formatting with clear sections and bullet points.
+
+Dataset summary:
+{summary}"""
+    response = model.generate_content(full_prompt)
     return response.text
 
 

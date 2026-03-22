@@ -106,6 +106,7 @@ if "file_name"    not in st.session_state: st.session_state.file_name    = ""
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
     api_key = st.secrets.get("GOOGLE_API_KEY", "")
+
     st.markdown("---")
     st.markdown("### 📁 Upload Data")
     uploaded = st.file_uploader("CSV or Excel file", type=["csv", "xlsx", "xls"])
@@ -150,7 +151,7 @@ def get_data_summary(df: pd.DataFrame) -> str:
 
 def ask_claude(prompt: str, df: pd.DataFrame, api_key: str) -> str:
     genai.configure(api_key=api_key)
-    model   = genai.GenerativeModel("gemini-pro",
+    model   = genai.GenerativeModel("gemini-1.5-flash-latest",
                 system_instruction="""You are an expert data analyst and statistician.
 You have access to a dataset and your job is to provide clear, actionable insights.
 Always structure your answers with:
@@ -166,7 +167,7 @@ Be concise but thorough. Use emojis to make responses engaging.""")
 
 def generate_auto_insights(df: pd.DataFrame, api_key: str) -> str:
     genai.configure(api_key=api_key)
-    model   = genai.GenerativeModel("gemini-pro",
+    model   = genai.GenerativeModel("gemini-1.5-flash-latest",
                 system_instruction="""You are an expert data analyst. Analyze this dataset and produce a comprehensive report covering:
 1. 📊 Dataset Overview
 2. 🔍 Key Statistical Insights  

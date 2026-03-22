@@ -166,7 +166,7 @@ Be concise but thorough. Use emojis to make responses engaging.""")
 
 def generate_auto_insights(df: pd.DataFrame, api_key: str) -> str:
     genai.configure(api_key=api_key)
-    model   = genai.GenerativeModel("gemini-1.5-flash",
+    model   = genai.GenerativeModel("gemini-pro",
                 system_instruction="""You are an expert data analyst. Analyze this dataset and produce a comprehensive report covering:
 1. 📊 Dataset Overview
 2. 🔍 Key Statistical Insights  
